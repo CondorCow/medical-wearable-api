@@ -1,7 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
+
+const authRoutes = require('./routes/auth');
 
 // JSON body parser
 app.use(bodyParser.json());
@@ -18,6 +21,7 @@ app.use((req, res, next) => {
 });
 
 // TODO: Define routes
+app.use('/auth', authRoutes);
 
 // TODO: Set relations via Sequelize models
 
@@ -27,7 +31,14 @@ app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;
     const data = error.data;
-    res.status(status).json({ message: message, data: data });
+    res.status(status).json({message: message, data: data});
 });
 
 // TODO: Sequelize.sync "({force: true})" => then app.listen(3000)
+
+mongoose.connect(
+    'mongodb+srv://dannyjanssen:x0uriKnjaqe6ELV2@cluster0-9p6kc.mongodb.net/medical_wearable?retryWrites=true')
+    .then(result => {
+        app.listen(8080);
+    })
+    .catch(err => console.log(err));
