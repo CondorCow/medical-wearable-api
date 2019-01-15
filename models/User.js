@@ -37,6 +37,6 @@ const userSchema = new Schema({
     }
 });
 
-userSchema.plugin(encrypt, {secret: 'secret', excludeFromEncryption: ['email']});
+// userSchema.plugin(encrypt, {secret: 'secret', excludeFromEncryption: ['email']});
 
 module.exports = mongoose.model('User', userSchema);

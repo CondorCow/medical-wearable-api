@@ -20,10 +20,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// TODO: Define routes
+// Route defenition
 app.use('/auth', authRoutes);
-
-// TODO: Set relations via Sequelize models
 
 // General app error handling
 app.use((error, req, res, next) => {
@@ -33,8 +31,6 @@ app.use((error, req, res, next) => {
     const data = error.data;
     res.status(status).json({message: message, data: data});
 });
-
-// TODO: Sequelize.sync "({force: true})" => then app.listen(3000)
 
 mongoose.connect(
     'mongodb+srv://dannyjanssen:x0uriKnjaqe6ELV2@cluster0-9p6kc.mongodb.net/medical_wearable?retryWrites=true')
