@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// const measurementSectionValue = mongoose.model('MeasurementSectionValue').schema;
+
 const measurementSchema = new Schema({
-    type: [{
+    measurementType: {
         type: Schema.Types.ObjectId, ref: 'MeasurementType'
-    }],
+    },
     values: [{
         type: Schema.Types.ObjectId, ref: 'MeasurementSectionValue'
     }],

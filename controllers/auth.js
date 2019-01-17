@@ -45,12 +45,20 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-    const email = req.body.email;
-    const password = req.body.password;
+    const errors = validationResult(req);
 
     try {
+        if (!errors.isEmpty()) {
+            const error = new Error('Validation failed');
+            error.statusCode = 422;
+            error.data = errors.array();
+            throw error;
+        }
+
+        const email = req.body.email;
+        const password = req.body.password;
+
         let loadedUser = await User.findOne({email: email});
-        console.log(loadedUser);
         if (!loadedUser) {
             const error = new Error('A user with this email is not found.');
             error.statusCode = 401;

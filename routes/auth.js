@@ -19,6 +19,8 @@ router.post('/signup', [
         }).normalizeEmail()
 ], authController.signup);
 
-router.post('/login', authController.login);
+router.post('/login',[
+    body('email').isEmail().withMessage('Please enter a valid email.')
+],authController.login);
 
 module.exports = router;

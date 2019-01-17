@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const autoIncrement = require('mongoose-auto-increment');
 const Schema = mongoose.Schema;
 
 const clientSchema = new Schema({
@@ -31,5 +32,9 @@ const clientSchema = new Schema({
         required: true
     }
 });
+
+// Auto increment clientNumber
+autoIncrement.initialize(mongoose.connection);
+clientSchema.plugin(autoIncrement.plugin, {model: 'Client', field: 'clientNumber', startAt: 1000});
 
 module.exports = mongoose.model('Client', clientSchema);
