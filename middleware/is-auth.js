@@ -10,9 +10,10 @@ module.exports = (req, res, next) => {
 
     // Token would be 'Bearer {token}' so split on space and extract the token
     const token = authHeader.split(' ')[1];
+    console.log(token);
     let decodedToken;
     try {
-        decodedToken = jwt.verify(jwt, 'NobodyShouldEverKnowThisSecret');
+        decodedToken = jwt.verify(token, 'NobodyShouldEverKnowThisSecret');
     } catch (err) {
         err.statusCode = 500;
         throw err;

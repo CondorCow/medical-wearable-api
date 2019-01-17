@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const app = express();
 
 const authRoutes = require('./routes/auth');
+const clientRoutes = require('./routes/client');
+const adminRoutes = require('./routes/admin');
+// const measurementRoutes = require('./routes/measurement');
 
 // JSON body parser
 app.use(bodyParser.json());
@@ -22,6 +25,9 @@ app.use((req, res, next) => {
 
 // Route defenition
 app.use('/auth', authRoutes);
+// app.use('/client/measurement', measurementRoutes);
+app.use('/client', clientRoutes);
+app.use('/admin', adminRoutes);
 
 // General app error handling
 app.use((error, req, res, next) => {
