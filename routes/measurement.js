@@ -7,6 +7,6 @@ const clientController = require('../controllers/client');
 router.post('/:clientNumber', clientController.newMeasurement);
 
 // Delete a measurement
-router.delete('/:clientNumber', clientController.removeMeasurement);
+router.delete('/:measurementId', clientController.removeMeasurement);
 
 module.exports = router;

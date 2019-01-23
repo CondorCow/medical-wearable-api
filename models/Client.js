@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
 const Schema = mongoose.Schema;
+
+const autoIncrement = require('mongoose-auto-increment');
+const encrypt = require('mongoose-encryption');
 
 const clientSchema = new Schema({
     clientNumber: {
         type: Number,
-        autoIncrement: true
+        autoIncrement: true,
+        unique: true,
     },
     name: {
         type: String,
@@ -36,5 +39,7 @@ const clientSchema = new Schema({
 // Auto increment clientNumber
 autoIncrement.initialize(mongoose.connection);
 clientSchema.plugin(autoIncrement.plugin, {model: 'Client', field: 'clientNumber', startAt: 1000});
+
+// clientSchema.plugin(encrypt, {secret: 'secret', excludeFromEncryption: ['clientNumber']});
 
 module.exports = mongoose.model('Client', clientSchema);

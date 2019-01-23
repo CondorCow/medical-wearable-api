@@ -8,9 +8,6 @@ const measurementTypeSchema = new Schema({
         type: String,
         required: true
     },
-    // sections: [{
-    //     type: Schema.Types.ObjectId, ref: 'MeasurementSection'
-    // }]
     sections:[measurementSectionSchema]
 });
 
