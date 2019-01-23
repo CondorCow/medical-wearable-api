@@ -4,17 +4,11 @@ const MeasurementSection = require('../models/MeasurementSection');
 const MeasurementType = require('../models/MeasurementType');
 const MeasurementSectionValue = require('../models/MeasurementSectionValue');
 const Measurement = require('../models/Measurement');
-
-const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 exports.createClient = async (req, res, next) => {
     try {
-        const name = req.body.name;
-        const lastName = req.body.lastName;
-        const address = req.body.address;
-        const postalCode = req.body.postalCode;
-        const city = req.body.city;
-        const telephone = req.body.telephone;
+        const {name, lastName, address, postalCode, city, telephone} = req.body;
 
         let client = new Client({
             name: name,
@@ -108,52 +102,68 @@ exports.updateClient = async (req, res, next) => {
 
 //TODO: Do when measurements are implemented
 exports.removeClient = async (req, res, next) => {
-    // const clientNumber = req.params.clientNumber;
-    //
-    // try {
-    //     let foundClient = await Client.findOne({clientNumber: clientNumber});
-    //     if (!foundClient) {
-    //         const error = new Error('No client with this clientnumber was found.')
-    //         error.statusCode = 404;
-    //         throw error;
-    //     }
-    //
-    //     // Delete all relations with measurements of this specific client
-    //     Measurement.update({}, {$pull: {client: {clientNumber: clientNumber}}}, {multi: true});
-    //
-    //     foundClient.delete();
-    // } catch (err) {
-    //     if(!err.statusCode){
-    //         err.statusCode = 500;
-    //     }
-    //     next(err);
-    // }
+    const clientNumber = req.params.clientNumber;
+
+    try {
+        let foundClient = await Client.findOne({clientNumber: clientNumber});
+        if (!foundClient) {
+            const error = new Error('No client with this clientnumber was found.');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        // Delete all relations with measurements of this specific client
+        Measurement.find({'client': foundClient._id}).remove(result => {
+            foundClient.delete();
+            return res.status(200).json({message: 'Client removed.'});
+        });
+
+        // res.status(200).json({message: 'Client deleted.'});
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 
 exports.newMeasurement = async (req, res, next) => {
     try {
-        console.log('hoi');
         const clientNumber = req.params.clientNumber;
-        const client = await Client.findOne({clientNumber: clientNumber});
+        const measurements = req.body;
 
         const user = await User.findOne({userId: req.userId});
+        const client = await Client.findOne({clientNumber: clientNumber});
 
-        const measurementType = req.body.measurementType;
-        const sectionValues = req.body.values;
-        const type = await MeasurementType.findOne({name: measurementType}).populate('sections');
+        if (!client) {
+            const error = new Error('Client not found.');
+            error.statusCode = 404;
+            throw error;
+        }
 
-        console.log(type);
-        console.log(...sectionValues);
-        const measurement = new Measurement({
-            type: type,
-            values: [...sectionValues],
-            recordedBy: user,
-            client: client
+        // Convert UTC date to UTC + 1
+        let date = new Date();
+        date.setHours(date.getHours() + 1);
+
+        measurements.map(async m => {
+            const type = await MeasurementType.findOne({name: m.measurementType});
+
+            if (!type) {
+                const error = new Error('Measurement type was not found.');
+                error.statusCode = 404;
+                throw error;
+            }
+
+            const measurement = new Measurement({
+                measurementType: type,
+                values: m.values,
+                recordedBy: user,
+                client: client,
+                recordedAt: date
+            });
+
+            await measurement.save();
         });
-        console.log(measurement);
-        //
-        // const savedMeasurement = await measurement.save();
-        res.status(200).json({message: 'Measurement saved.'});
 
     } catch (err) {
         if (!err.statusCode) {
@@ -163,8 +173,22 @@ exports.newMeasurement = async (req, res, next) => {
     }
 };
 
+// remove a specific measurement
 exports.removeMeasurement = async (req, res, next) => {
-    // remove a specific measurement
+    const measurementId = req.params.measurementId;
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(measurementId)) {
+            throw new Error('Measurement not found.');
+        }
+        const removedMeasurement = await Measurement.remove({_id: measurementId});
+        res.status(200).json({message: 'Measurement removed.', id: removedMeasurement._id})
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 
 

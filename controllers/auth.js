@@ -14,24 +14,17 @@ exports.signup = async (req, res, next) => {
             throw error;
         }
 
-        const email = req.body.email;
-        const name = req.body.name;
-        const lastName = req.body.lastName;
-        const address = req.body.address;
-        const city = req.body.city;
-        const postalCode = req.body.city;
-        const telephone = req.body.telephone;
-        const password = req.body.password;
+        const {email, name, lastName, address, city, postalCode, telephone, password} = req.body;
 
         let hashedPw = await bcrypt.hash(password, 12);
         const user = new User({
-            email: email,
-            name: name,
-            lastName: lastName,
-            address: address,
-            city: city,
-            postalCode: postalCode,
-            telephone: telephone,
+            email,
+            name,
+            lastName,
+            address,
+            city,
+            postalCode,
+            telephone,
             password: hashedPw
         });
         let result = await user.save();

@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// const measurementSectionValue = mongoose.model('MeasurementSectionValue').schema;
+const measurementSectionValueSchema = mongoose.model('MeasurementSectionValue').schema;
 
 const measurementSchema = new Schema({
-    measurementType: {
-        type: Schema.Types.ObjectId, ref: 'MeasurementType'
-    },
-    values: [{
-        type: Schema.Types.ObjectId, ref: 'MeasurementSectionValue'
-    }],
+    // measurementTypeId: {
+    //     type: String,
+    //     required: true
+    // },
+    measurementType: {type: Schema.Types.ObjectId, ref: 'MeasurementType'},
+    values: [measurementSectionValueSchema],
     recordedBy: {
         type: Schema.Types.ObjectId, ref: 'User'
     },

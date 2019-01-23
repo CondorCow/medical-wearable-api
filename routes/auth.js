@@ -5,8 +5,6 @@ const {body} = require('express-validator/check');
 const User = require('../models/user');
 const authController = require('../controllers/auth');
 
-const EMAIL_REGEX = '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$';
-
 router.post('/signup', [
     body('email').isEmail()
         .withMessage('Please enter a valid email.')
