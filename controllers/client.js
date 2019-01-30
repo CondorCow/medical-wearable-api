@@ -127,12 +127,38 @@ exports.removeClient = async (req, res, next) => {
     }
 };
 
+exports.getMeasurementsFromClient = async (req, res, next) => {
+    try {
+        const clientNumber = req.params.clientNumber;
+        const foundClient = await Client.findOne({clientNumber: clientNumber});
+        if(!foundClient){
+            console.log('error');
+            const error = new Error('No client with this clientnumber was found.');
+            error.statusCode = 404;
+            throw error;
+        }
+        const measurements = await Measurement.find({'client': foundClient._id});
+        if(measurements.length !== 0) {
+            return res.status(200).json({measurements});
+        } else {
+            const error = new Error('No measurements.');
+            error.statusCode = 404;
+            throw error;
+        }
+    } catch (err) {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err)
+    }
+};
+
 exports.newMeasurement = async (req, res, next) => {
     try {
         const clientNumber = req.params.clientNumber;
         const measurements = req.body;
 
-        const user = await User.findOne({userId: req.userId});
+        const user = await User.findOne({_id: req.userId});
         const client = await Client.findOne({clientNumber: clientNumber});
 
         if (!client) {
@@ -146,7 +172,7 @@ exports.newMeasurement = async (req, res, next) => {
         date.setHours(date.getHours() + 1);
 
         measurements.map(async m => {
-            const type = await MeasurementType.findOne({name: m.measurementType});
+            const type = await MeasurementType.findOne({_id: m.measurementType});
 
             if (!type) {
                 const error = new Error('Measurement type was not found.');
@@ -163,6 +189,7 @@ exports.newMeasurement = async (req, res, next) => {
             });
 
             await measurement.save();
+            return res.status(200).json({message: 'Measurement saved.'})
         });
 
     } catch (err) {

@@ -41,6 +41,6 @@ app.use((error, req, res, next) => {
 mongoose.connect(
     'mongodb+srv://dannyjanssen:x0uriKnjaqe6ELV2@cluster0-9p6kc.mongodb.net/medical_wearable?retryWrites=true')
     .then(result => {
-        app.listen(8080);
+        app.listen(3000, '192.168.254.236');
     })
     .catch(err => console.log(err));

@@ -4,10 +4,6 @@ const Schema = mongoose.Schema;
 const measurementSectionValueSchema = mongoose.model('MeasurementSectionValue').schema;
 
 const measurementSchema = new Schema({
-    // measurementTypeId: {
-    //     type: String,
-    //     required: true
-    // },
     measurementType: {type: Schema.Types.ObjectId, ref: 'MeasurementType'},
     values: [measurementSectionValueSchema],
     recordedBy: {

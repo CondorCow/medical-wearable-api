@@ -19,9 +19,9 @@ router.get('/:clientNumber', isAuth, clientController.getClient);
 router.put('/:clientNumber', isAuth, clientController.updateClient);
 
 // Remove client
-router.delete('/:clientNumber', clientController.removeClient);
+router.delete('/:clientNumber', isAuth, clientController.removeClient);
 
 // Add new measurement
-router.use('/measurement', measurementRoutes);
+router.use('/measurement', isAuth, measurementRoutes);
 
 module.exports = router;
