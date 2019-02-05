@@ -131,14 +131,14 @@ exports.getMeasurementsFromClient = async (req, res, next) => {
     try {
         const clientNumber = req.params.clientNumber;
         const foundClient = await Client.findOne({clientNumber: clientNumber});
-        if(!foundClient){
+        if (!foundClient) {
             console.log('error');
             const error = new Error('No client with this clientnumber was found.');
             error.statusCode = 404;
             throw error;
         }
         const measurements = await Measurement.find({'client': foundClient._id});
-        if(measurements.length !== 0) {
+        if (measurements.length !== 0) {
             return res.status(200).json({measurements});
         } else {
             const error = new Error('No measurements.');
@@ -146,7 +146,7 @@ exports.getMeasurementsFromClient = async (req, res, next) => {
             throw error;
         }
     } catch (err) {
-        if(!err.statusCode) {
+        if (!err.statusCode) {
             err.statusCode = 500;
         }
         next(err)
@@ -158,7 +158,7 @@ exports.newMeasurement = async (req, res, next) => {
         const clientNumber = req.params.clientNumber;
         const measurements = req.body;
 
-        const user = await User.findOne({_id: req.userId});
+        const user = req.user; //await User.findOne({_id: req.userId});
         const client = await Client.findOne({clientNumber: clientNumber});
 
         if (!client) {
@@ -171,14 +171,54 @@ exports.newMeasurement = async (req, res, next) => {
         let date = new Date();
         date.setHours(date.getHours() + 1);
 
-        measurements.map(async m => {
-            const type = await MeasurementType.findOne({_id: m.measurementType});
-
+        measurements.forEach(async m => {
+            // Check if measurementType exists
+            const type = await MeasurementType.findOne({_id: m.measurementTypeId});//.lean().populate({path: 'sections'});
             if (!type) {
                 const error = new Error('Measurement type was not found.');
                 error.statusCode = 404;
                 throw error;
             }
+            console.log('TYPE:', type);
+
+            // Check sections of type
+            const typeSections = type.sections;
+            const ids = typeSections.map(section => {
+                return section._id.toString()
+            });
+
+            let hasDifference = false;
+            const requestIds = m.values.map(s => s.sectionId);
+            console.log("ids", ids);
+            console.log("request", requestIds);
+            requestIds.forEach(id => {
+                if(!ids.includes(id)) {
+                    hasDifference = true
+                }
+            });
+
+            const isInvalid = (requestIds.length > ids.length) || ([...new Set(requestIds)].length !== requestIds.length);
+            // console.log(hasDifference);
+            // console.log(isInvalid);
+            if (hasDifference || isInvalid) {
+                const error = new Error('No values or found invalid sections.');
+                error.statusCode = 422;
+                throw error;
+            }
+
+            //TODO: FIX!!!
+            // const toSaveValues = m.values.map(v => {
+            //    return {
+            //        value: v.value,
+            //        section: typeSections.map(section => {
+            //            if(section._id.toString() === v.sectionId) {
+            //                // console.log(section);
+            //                return section
+            //            }
+            //        })
+            //    }
+            // });
+            console.log("toSaveValues", toSaveValues);
 
             const measurement = new Measurement({
                 measurementType: type,
