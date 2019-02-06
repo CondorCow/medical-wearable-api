@@ -4,10 +4,10 @@ const router = express.Router();
 const clientController = require('../controllers/client');
 
 // Create a new measurement for a client
-router.post('/:clientNumber', clientController.newMeasurement);
+router.post(clientController.newMeasurement);
 
 // Get all measurements from a client
-router.get('/:clientNumber', clientController.getMeasurementsFromClient);
+router.get(clientController.getMeasurementsFromClient);
 
 // Delete a measurement
 router.delete('/:measurementId', clientController.removeMeasurement);

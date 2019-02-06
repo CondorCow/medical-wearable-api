@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
@@ -26,6 +27,15 @@ module.exports = (req, res, next) => {
         throw error;
     }
 
-    req.userId = decodedToken.userId;
+    // TODO: Get user from db
+    User.findOne({_id: decodedToken.userId}).then(result => {
+        if (!result) {
+            const error = new Error('Not authenticated.');
+            error.statusCode = 401;
+            throw error;
+        } else {
+            req.user = result;
+        }
+    });
     next();
 };
