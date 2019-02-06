@@ -192,7 +192,7 @@ exports.newMeasurement = async (req, res, next) => {
             console.log("ids", ids);
             console.log("request", requestIds);
             requestIds.forEach(id => {
-                if(!ids.includes(id)) {
+                if (!ids.includes(id)) {
                     hasDifference = true
                 }
             });
@@ -206,23 +206,20 @@ exports.newMeasurement = async (req, res, next) => {
                 throw error;
             }
 
-            //TODO: FIX!!!
-            // const toSaveValues = m.values.map(v => {
-            //    return {
-            //        value: v.value,
-            //        section: typeSections.map(section => {
-            //            if(section._id.toString() === v.sectionId) {
-            //                // console.log(section);
-            //                return section
-            //            }
-            //        })
-            //    }
-            // });
-            console.log("toSaveValues", toSaveValues);
+            const toSaveValues = m.values.map(async v => {
+               const section = await MeasurementSection.findOne({_id: v.sectionId});
+               return new MeasurementSectionValue({
+                  section: section,
+                  value: v.value
+               });
+            });
+
+            const results = await Promise.all(toSaveValues);
+            console.log("toSaveValues", results);
 
             const measurement = new Measurement({
                 measurementType: type,
-                values: m.values,
+                values: results,
                 recordedBy: user,
                 client: client,
                 recordedAt: date

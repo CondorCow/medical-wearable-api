@@ -5,7 +5,7 @@ const measurementSectionValueSchema = mongoose.model('MeasurementSectionValue').
 
 const measurementSchema = new Schema({
     measurementType: {type: Schema.Types.ObjectId, ref: 'MeasurementType'},
-    values: [{type: Schema.Types.ObjectId, ref: 'MeasurementSectionValue'}],
+    values: [measurementSectionValueSchema],
     recordedBy: {
         type: Schema.Types.ObjectId, ref: 'User'
     },
