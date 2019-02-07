@@ -100,7 +100,6 @@ exports.updateClient = async (req, res, next) => {
     });
 };
 
-//TODO: Do when measurements are implemented
 exports.removeClient = async (req, res, next) => {
     const clientNumber = req.params.clientNumber;
 
@@ -171,7 +170,7 @@ exports.newMeasurement = async (req, res, next) => {
         let date = new Date();
         date.setHours(date.getHours() + 1);
 
-        measurements.forEach(async m => {
+        for (const m of measurements) {
             // Check if measurementType exists
             const type = await MeasurementType.findOne({_id: m.measurementTypeId});//.lean().populate({path: 'sections'});
             if (!type) {
@@ -198,28 +197,35 @@ exports.newMeasurement = async (req, res, next) => {
             });
 
             const isInvalid = (requestIds.length > ids.length) || ([...new Set(requestIds)].length !== requestIds.length);
-            // console.log(hasDifference);
-            // console.log(isInvalid);
+
             if (hasDifference || isInvalid) {
                 const error = new Error('No values or found invalid sections.');
                 error.statusCode = 422;
                 throw error;
             }
 
-            const toSaveValues = m.values.map(async v => {
-               const section = await MeasurementSection.findOne({_id: v.sectionId});
-               return new MeasurementSectionValue({
-                  section: section,
-                  value: v.value
-               });
+            // get all MeasurementSection
+            const sections = await MeasurementSection.find({
+                _id: {
+                    $in: m.values.map(v => v.sectionId)
+                }
             });
 
-            const results = await Promise.all(toSaveValues);
-            console.log("toSaveValues", results);
+            const toSaveValues = m.values.map(v => {
+                const section = sections.find(s => s.id === v.sectionId);
+                // const section = await MeasurementSection.findOne({_id: v.sectionId});
+                return new MeasurementSectionValue({
+                    section: section,
+                    value: v.value
+                });
+            });
+
+            // const results = await Promise.all(toSaveValues);
+            console.log("toSaveValues", toSaveValues);
 
             const measurement = new Measurement({
-                measurementType: type,
-                values: results,
+                measurementTypeId: type,
+                values: toSaveValues,
                 recordedBy: user,
                 client: client,
                 recordedAt: date
@@ -227,7 +233,7 @@ exports.newMeasurement = async (req, res, next) => {
 
             await measurement.save();
             return res.status(200).json({message: 'Measurement saved.'})
-        });
+        }
 
     } catch (err) {
         if (!err.statusCode) {
