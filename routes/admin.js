@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
+const isAuth = require('../middleware/is-auth');
 const adminController = require('../controllers/admin');
 
-router.post('/measurementType', adminController.createMeasurementType);
+router.post('/measurementTypes', adminController.createMeasurementType);
+router.get('/measurementTypes', isAuth, adminController.getMeasurementTypes);
 
 module.exports = router;

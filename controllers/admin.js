@@ -2,7 +2,8 @@ const MeasurementType = require('../models/MeasurementType');
 const MeasurementSection = require('../models/MeasurementSection');
 
 exports.createMeasurementType = (req, res, next) => {
-    const title = req.body.title;
+    const identifier = req.body.identifier;
+    const name = req.body.name;
     const sections = req.body.sections.map(s => {
         return MeasurementSection.findOne({name: s.name})
             .then(result => {
@@ -18,7 +19,8 @@ exports.createMeasurementType = (req, res, next) => {
 
     Promise.all(sections).then(sections => {
         const measurementType = new MeasurementType({
-            name: title,
+            identifier,
+            name,
             sections
         });
 
@@ -26,4 +28,15 @@ exports.createMeasurementType = (req, res, next) => {
             res.status(201).json({message: 'New measurement saved.'});
         });
     });
+};
+
+exports.getMeasurementTypes = async (req, res, next) => {
+    const measurementTypes = await MeasurementType.find();
+    if(measurementTypes.length !== 0) {
+        return res.status(200).json({measurementTypes});
+    } else {
+        const error = new Error('No measurement types found.');
+        error.statusCode = 404;
+        next(error);
+    }
 };

@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 const measurementSectionSchema = mongoose.model('MeasurementSection').schema;
 
 const measurementTypeSchema = new Schema({
+    identifier: {
+        type: String,
+        required: true
+    },
     name: {
         type: String,
         required: true
