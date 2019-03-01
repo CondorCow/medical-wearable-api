@@ -136,7 +136,7 @@ exports.getMeasurementsFromClient = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        const measurements = await Measurement.find({'client': foundClient._id});
+        const measurements = await Measurement.find({'client': foundClient._id}).populate('measurementTypeId');
         if (measurements.length !== 0) {
             return res.status(200).json({measurements});
         } else {
