@@ -232,8 +232,8 @@ exports.newMeasurement = async (req, res, next) => {
             });
 
             await measurement.save();
-            return res.status(200).json({message: 'Measurement saved.'})
         }
+        return res.status(200).json({message: 'Measurement saved.'});
 
     } catch (err) {
         if (!err.statusCode) {
