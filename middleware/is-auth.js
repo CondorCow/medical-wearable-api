@@ -27,7 +27,7 @@ module.exports = (req, res, next) => {
         throw error;
     }
 
-    // TODO: Get user from db
+    // Get user from db and add it to the request
     User.findOne({_id: decodedToken.userId}).then(result => {
         if (!result) {
             const error = new Error('Not authenticated.');

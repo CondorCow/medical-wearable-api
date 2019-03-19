@@ -205,14 +205,16 @@ exports.newMeasurement = async (req, res, next) => {
             }
 
             // get all MeasurementSection
-            const sections = await MeasurementSection.find({
-                _id: {
-                    $in: m.values.map(v => v.sectionId)
-                }
-            });
+            // const sections = await MeasurementSection.find({
+            //     _id: {
+            //         $in: m.values.map(v => v.sectionId)
+            //     }
+            // });
+            // console.log("m.values", m.values.map(v => v.sectionId))
 
             const toSaveValues = m.values.map(v => {
-                const section = sections.find(s => s.id === v.sectionId);
+                const section = typeSections.find(s => s.id === v.sectionId);
+                console.log("SECTION:",section)
                 // const section = await MeasurementSection.findOne({_id: v.sectionId});
                 return new MeasurementSectionValue({
                     section: section,
